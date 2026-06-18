@@ -1,4 +1,4 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -7,18 +7,9 @@ from .hos_calculator import calculate_trip, serialize_trip_plan
 
 
 @api_view(['POST'])
+@authentication_classes([])
+@permission_classes([])
 def plan_trip(request):
-    """
-    Main trip planning endpoint.
-    
-    Expected JSON body:
-    {
-        "current_location": "Chicago, IL",
-        "pickup_location": "Detroit, MI",
-        "dropoff_location": "New York, NY",
-        "current_cycle_used": 20.5
-    }
-    """
     data = request.data
 
     current_location = data.get('current_location', '').strip()
@@ -30,7 +21,6 @@ def plan_trip(request):
     except (ValueError, TypeError):
         current_cycle_used = 0.0
 
-    # Validation
     if not current_location or not pickup_location or not dropoff_location:
         return Response(
             {'error': 'current_location, pickup_location, and dropoff_location are required.'},
@@ -43,7 +33,6 @@ def plan_trip(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    # Step 1: Geocode all locations
     current_coords = geocode(current_location)
     pickup_coords = geocode(pickup_location)
     dropoff_coords = geocode(dropoff_location)
@@ -64,11 +53,9 @@ def plan_trip(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    # Step 2: Get routes
     route_to_pickup = get_route(current_coords, pickup_coords)
     route_to_dropoff = get_route(pickup_coords, dropoff_coords)
 
-    # Fallback to haversine if OSRM fails
     if route_to_pickup:
         dist_to_pickup = route_to_pickup['distance_miles']
         coords_to_pickup = route_to_pickup['coordinates']
@@ -83,7 +70,6 @@ def plan_trip(request):
         dist_to_dropoff = haversine_miles(*pickup_coords, *dropoff_coords)
         coords_to_dropoff = [list(pickup_coords), list(dropoff_coords)]
 
-    # Step 3: Calculate trip plan with HOS rules
     trip_plan = calculate_trip(
         current_location=current_location,
         pickup_location=pickup_location,
@@ -98,27 +84,18 @@ def plan_trip(request):
         current_coords=current_coords,
     )
 
-    # Step 4: Serialize and return
     result = serialize_trip_plan(trip_plan)
     result['locations'] = {
-        'current': {
-            'name': current_location,
-            'coordinates': list(current_coords),
-        },
-        'pickup': {
-            'name': pickup_location,
-            'coordinates': list(pickup_coords),
-        },
-        'dropoff': {
-            'name': dropoff_location,
-            'coordinates': list(dropoff_coords),
-        },
+        'current': {'name': current_location, 'coordinates': list(current_coords)},
+        'pickup':  {'name': pickup_location,  'coordinates': list(pickup_coords)},
+        'dropoff': {'name': dropoff_location, 'coordinates': list(dropoff_coords)},
     }
 
     return Response(result)
 
 
 @api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
 def health_check(request):
-    """Health check endpoint."""
     return Response({'status': 'ok', 'message': 'ELD Trip Planner API is running'})
