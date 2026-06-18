@@ -89,6 +89,18 @@ export default function App() {
         {/* Main */}
         <main className="flex-1 p-6 flex flex-col gap-5">
 
+          {/* Render cold-start notice */}
+          <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-md text-[0.82rem] leading-snug">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="w-4 h-4 shrink-0 mt-0.5 text-amber-500">
+              <circle cx="10" cy="10" r="8"/>
+              <path d="M10 6v4M10 13.5v.5" strokeLinecap="round"/>
+            </svg>
+            <span>
+              <span className="font-semibold">Hosted on Render free tier — </span>
+              the first request may take <span className="font-semibold">30–60 seconds</span> to wake the backend instance. Subsequent requests are fast.
+            </span>
+          </div>
+
           {/* Error */}
           {error && (
             <div role="alert" className="flex items-start gap-2.5 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-[0.85rem] font-medium leading-snug">
@@ -138,6 +150,7 @@ export default function App() {
               </div>
               <p className="text-[0.95rem] font-semibold text-slate-800 mt-1">Calculating route</p>
               <p className="text-[0.8rem] text-slate-400">Geocoding locations and applying HOS regulations</p>
+              <p className="text-[0.75rem] text-amber-500 mt-1">If this is the first request, the backend may need 30–60 s to start</p>
             </div>
           )}
 
