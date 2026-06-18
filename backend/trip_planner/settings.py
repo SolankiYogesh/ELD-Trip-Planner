@@ -6,7 +6,12 @@ SECRET_KEY = 'django-insecure-eld-trip-planner-secret-key-change-in-production'
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    'eld-trip-planner-woad.vercel.app',
+    'eld-trip-planner-e8hz.onrender.com',
+    'localhost',
+    '127.0.0.1',
+]
 
 INSTALLED_APPS = [
     'django.contrib.contenttypes',
