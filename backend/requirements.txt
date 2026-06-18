@@ -98,3 +98,4 @@ watchdog==5.0.3
 websockets==16.0
 wheel==0.47.0
 zipp==3.23.1
+gunicorn
